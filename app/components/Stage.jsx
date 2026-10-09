@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import PixelMap from "./PixelMap";
 
@@ -103,16 +104,19 @@ export default function Stage() {
 
       {/* The one and only portrait */}
       <div ref={personRef} className="stage-person" data-pose={pose} data-ready={ready ? "" : undefined}>
-        <img
+        {/* next/image serves a resized WebP (a fraction of the PNG's 1.1 MB) with proper
+            caching — public/person.png stays the single source file you replace. */}
+        <Image
           ref={imgRef}
           src="/person.png"
           alt={NAME}
           width={1487}
           height={1058}
-          className="stage-person-img select-none"
-          draggable="false"
-          decoding="async"
+          sizes="(min-width: 768px) 1040px, 140vw"
+          loading="eager"
           fetchPriority="high"
+          className="stage-person-img select-none"
+          draggable={false}
           data-ready={ready ? "" : undefined}
           onLoad={() => setLoaded(true)}
           onError={() => setLoaded(true)}

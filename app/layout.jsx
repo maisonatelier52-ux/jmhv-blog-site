@@ -1,5 +1,7 @@
 import "./globals.css";
 import Stage from "./components/Stage";
+import Header from "./components/Header";
+import ContentLayer from "./components/ContentLayer";
 
 export const metadata = {
   title: "Julio Herrera Velutini",
@@ -18,7 +20,12 @@ export default function RootLayout({ children }) {
       <body>
         {/* Persistent across routes: background, portrait and name banner */}
         <Stage />
-        {children}
+        {/* Also persistent: header + content text, so changing page never re-mounts them */}
+        <main className="body-font site-shell relative h-[100svh] max-h-[100svh] overflow-hidden text-[#f5f1e7]">
+          <Header />
+          <ContentLayer />
+          {children}
+        </main>
       </body>
     </html>
   );
