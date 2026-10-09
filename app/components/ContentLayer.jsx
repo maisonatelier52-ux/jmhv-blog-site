@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { getPage, PAGES, PAGE_SLUGS } from "./pages-data";
 
 /**
@@ -18,6 +18,31 @@ import { getPage, PAGES, PAGE_SLUGS } from "./pages-data";
  */
 
 const FADE_OUT_MS = 320;
+
+/**
+ * Flowing fade-in
+ * Every piece of text on the page (label → headline words → body words → prev/next) gets a
+ * running index `--i`. The CSS delays each one by `--i * --flow-step`, so the text appears as
+ * one continuous wave that rolls from the top of the panel down to the bottom, instead of the
+ * whole block fading in at once. Pure CSS (opacity + transform), so no layout measuring and it
+ * is identical on the server render and after hydration.
+ */
+const FLOW_TOTAL_MS = 1250; // how long the wave takes to travel through all the text (before each word's own fade)
+const FLOW_STEP_MIN_MS = 12;
+const FLOW_STEP_MAX_MS = 36;
+
+const splitWords = (text) => text.trim().split(/\s+/);
+
+function FlowWords({ words, start }) {
+  return words.map((word, i) => (
+    <Fragment key={i}>
+      <span className="flow-item flow-word" style={{ "--i": start + i }}>
+        {word}
+      </span>
+      {i < words.length - 1 ? " " : null}
+    </Fragment>
+  ));
+}
 
 function slugFromPath(pathname) {
   if (!pathname || pathname === "/") return null;
@@ -60,27 +85,45 @@ export default function ContentLayer() {
   const prevPage = currentIndex > 0 ? PAGES[currentIndex - 1] : null;
   const nextPage = currentIndex < PAGES.length - 1 ? PAGES[currentIndex + 1] : null;
 
+  // Running index for the flowing fade-in: label = 0, then headline words, body words, nav
+  const headlineWords = splitWords(page.headline);
+  const bodyWords = splitWords(page.body);
+  const headlineStart = 1;
+  const bodyStart = headlineStart + headlineWords.length;
+  const navIndex = bodyStart + bodyWords.length;
+  const flowStepMs = Math.max(
+    FLOW_STEP_MIN_MS,
+    Math.min(FLOW_STEP_MAX_MS, Math.round(FLOW_TOTAL_MS / (navIndex + 1))),
+  );
+
   return (
     <div className="content-page relative z-10 flex h-full w-full flex-col md:flex-row">
       {/* Left / top: editorial content — pushed up on mobile so it clears the cutout */}
       <div
         key={shown}
+        style={{ "--flow-step": `${flowStepMs}ms` }}
         className={`content-panel relative z-20 flex min-h-0 flex-1 flex-col justify-start px-5 pt-[4.5rem] pb-[50vh] md:max-w-[58%] md:justify-center md:px-8 md:pb-16 md:pt-24 lg:max-w-[55%] ${
-          leaving ? "content-fade-out" : "content-fade-in"
+          leaving ? "content-fade-out" : ""
         } ${delayed ? "content-enter-delay" : ""}`}
       >
-        <p className="mb-3 text-[10px] uppercase tracking-[.18em] text-white/50 md:mb-6 md:text-[12px]">
+        <p
+          className="flow-item mb-3 text-[10px] uppercase tracking-[.18em] text-white/50 md:mb-6 md:text-[12px]"
+          style={{ "--i": 0 }}
+        >
           {page.number} — {page.label}
         </p>
         <h1 className="display-font content-headline text-balance break-words uppercase text-white/80">
-          {page.headline}
+          <FlowWords words={headlineWords} start={headlineStart} />
         </h1>
         <p className="content-body mt-4 max-w-xl text-[13px] leading-[1.4] text-white/55 md:mt-8 md:text-[15px] md:leading-[1.5]">
-          {page.body}
+          <FlowWords words={bodyWords} start={bodyStart} />
         </p>
 
         {/* Prev / Next */}
-        <div className="mt-8 flex flex-wrap items-center gap-4 md:mt-14 md:gap-6">
+        <div
+          className="flow-item mt-8 flex flex-wrap items-center gap-4 md:mt-14 md:gap-6"
+          style={{ "--i": navIndex }}
+        >
           {prevPage ? (
             <Link
               href={`/${prevPage.slug}`}
