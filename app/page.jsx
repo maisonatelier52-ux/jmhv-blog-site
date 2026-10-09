@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Header from "./components/Header";
-import PixelMap from "./components/PixelMap";
 
 const NAME = "Julio Herrera Velutini";
 
@@ -17,12 +16,6 @@ export default function Home() {
     const prevBody = body.style.overflow;
     html.style.overflow = "hidden";
     body.style.overflow = "hidden";
-    // Reset so homepage → first page can run the person slide-in again
-    try {
-      sessionStorage.removeItem("julio-content-entered");
-    } catch {
-      /* ignore */
-    }
     return () => {
       html.style.overflow = prevHtml;
       body.style.overflow = prevBody;
@@ -41,9 +34,12 @@ export default function Home() {
     return () => window.removeEventListener("pointermove", move);
   }, []);
 
+  // The portrait, pixel background and big name banner are drawn by the persistent
+  // <Stage /> in layout.jsx, so they can animate smoothly into the next page.
   return (
     <main className="body-font site-shell relative h-[100svh] max-h-[100svh] overflow-hidden text-[#f5f1e7]">
-      <PixelMap />
+      <h1 className="sr-only">{NAME}</h1>
+
       <div
         ref={cursorTarget}
         className={`floating-cursor ${cursor.visible ? "is-visible" : ""}`}
@@ -53,29 +49,6 @@ export default function Home() {
       </div>
 
       <Header />
-
-      <section id="top" className="hero-section">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,transparent_18%,rgba(0,0,0,.3)_76%)]" />
-
-        <div className="hero-person-wrap">
-          <img
-            src="/person.png"
-            alt="Julio Herrera Velutini"
-            width={1487}
-            height={1058}
-            className="hero-person select-none"
-            draggable="false"
-            decoding="async"
-            fetchPriority="high"
-          />
-        </div>
-      </section>
-
-      <section className="name-banner" aria-label={NAME}>
-        <div className="banner-name">
-          <span>Julio Herrera</span> <span>Velutini</span>
-        </div>
-      </section>
     </main>
   );
 }

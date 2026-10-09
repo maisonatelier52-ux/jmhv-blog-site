@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
-import PixelMap from "../components/PixelMap";
 import { getPage, PAGES, PAGE_SLUGS } from "../components/pages-data";
 
 export default function ContentPage() {
@@ -15,9 +14,9 @@ export default function ContentPage() {
 
   const [contentKey, setContentKey] = useState(slug);
   const [fadeIn, setFadeIn] = useState(true);
-  // Only animate person when arriving from homepage (session flag not set yet)
-  const [animatePerson, setAnimatePerson] = useState(false);
-  const [personReady, setPersonReady] = useState(false);
+  // First text entrance waits a beat so it blooms as the portrait settles in place.
+  // Page → page changes after that are not delayed.
+  const [firstEntry, setFirstEntry] = useState(true);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -32,32 +31,12 @@ export default function ContentPage() {
     };
   }, []);
 
-  // Person slide only once: homepage → first content page
-  useEffect(() => {
-    try {
-      const flag = sessionStorage.getItem("julio-content-entered");
-      if (flag === "1") {
-        // Already been on a content page this session — person stays put
-        setAnimatePerson(false);
-        setPersonReady(true);
-      } else {
-        sessionStorage.setItem("julio-content-entered", "1");
-        setAnimatePerson(true);
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => setPersonReady(true));
-        });
-      }
-    } catch {
-      setAnimatePerson(false);
-      setPersonReady(true);
-    }
-  }, []);
-
   // Content fade when navigating between pages
   useEffect(() => {
     if (contentKey === slug) return;
     setFadeIn(false);
     const t = setTimeout(() => {
+      setFirstEntry(false);
       setContentKey(slug);
       setFadeIn(true);
     }, 340);
@@ -74,23 +53,16 @@ export default function ContentPage() {
   const prevPage = currentIndex > 0 ? PAGES[currentIndex - 1] : null;
   const nextPage = currentIndex < PAGES.length - 1 ? PAGES[currentIndex + 1] : null;
 
-  const personClass = animatePerson
-    ? personReady
-      ? "person-side-entered"
-      : "person-side-enter"
-    : "person-side-static";
-
   return (
     <main className="body-font site-shell relative h-[100svh] max-h-[100svh] overflow-hidden text-[#f5f1e7]">
-      <PixelMap />
       <Header />
 
       <div className="content-page relative z-10 flex h-full w-full flex-col md:flex-row">
         {/* Left / top: editorial content — pushed up on mobile so it clears the cutout */}
         <div
-          className={`content-panel relative z-20 flex min-h-0 flex-1 flex-col justify-start px-5 pt-[4.5rem] pb-[42vh] md:max-w-[58%] md:justify-center md:px-8 md:pb-16 md:pt-24 lg:max-w-[55%] ${
+          className={`content-panel relative z-20 flex min-h-0 flex-1 flex-col justify-start px-5 pt-[4.5rem] pb-[50vh] md:max-w-[58%] md:justify-center md:px-8 md:pb-16 md:pt-24 lg:max-w-[55%] ${
             fadeIn ? "content-fade-in" : "content-fade-out"
-          }`}
+          } ${firstEntry ? "content-enter-delay" : ""}`}
           key={contentKey}
         >
           <p className="mb-3 text-[10px] uppercase tracking-[.18em] text-white/50 md:mb-6 md:text-[12px]">
@@ -137,19 +109,6 @@ export default function ContentPage() {
               <span className="text-[11px] uppercase tracking-[.12em] text-white/20 md:text-[12px]">End →</span>
             )}
           </div>
-        </div>
-
-        {/* Right / bottom: Julio cutout */}
-        <div className={`person-side-wrap pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-end md:relative md:inset-auto md:flex-1 md:items-end md:justify-end ${personClass}`}>
-          <img
-            src="/person.png"
-            alt="Julio Herrera Velutini"
-            width={1487}
-            height={1058}
-            className="person-side select-none"
-            draggable="false"
-            decoding="async"
-          />
         </div>
       </div>
     </main>

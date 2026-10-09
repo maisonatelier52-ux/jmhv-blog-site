@@ -1,4 +1,5 @@
 import "./globals.css";
+import Stage from "./components/Stage";
 
 export const metadata = {
   title: "Julio Herrera Velutini",
@@ -14,7 +15,11 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {/* Persistent across routes: background, portrait and name banner */}
+        <Stage />
+        {children}
+      </body>
     </html>
   );
 }
