@@ -1,19 +1,27 @@
+import Image from "next/image";
 import { JHV_HEIGHT, JHV_PATHS, JHV_WIDTH } from "./hero-glyphs";
 
 /**
  * Homepage-only backdrop that sits BEHIND the portrait cut-out:
- *   - big "JHV" monogram (grey, lit from the left)
- *   - thin ring with a soft glow
+ *   - the silver crest (public/crest.webp), shown see-through
+ *   - big "JHV" monogram (grey, lit from the left) drawn ON TOP of the crest
  *   - horizontal light streaks + small flares
  *   - a tiny 3×3 pixel-square accent
  *
- * Everything is a plain SVG / CSS shape (no images, no fonts, no canvas), is positioned
+ * Everything except the crest is a plain SVG / CSS shape (no fonts, no canvas). It is positioned
  * from the same CSS tokens as the portrait (see "Homepage backdrop" in globals.css) and
  * fades out when the stage moves to a content page (data-pose="side"). The animated
  * pixel-dot canvas (<PixelMap />) is untouched and keeps running over all of it.
  *
- * Colours are neutral greys / the site's stone tone — change the stop-colors below to retune.
+ * Readability of the JHV letters: the crest is painted underneath them, it is only ever shown
+ * at partial opacity (--fx-crest-opacity in globals.css), a soft dark scrim is blurred behind the
+ * letters, and the letters carry a thin dark halo — so the crest's detail never fights the
+ * lettering. To swap the artwork, replace public/crest.webp (keep the same proportions, or update
+ * CREST below and the aspect-ratio of .fx-crest in globals.css).
  */
+
+// public/crest.webp — its pixel size
+const CREST = { src: "/crest.webp", width: 373, height: 551 };
 
 // 3×3 pixel-square accent: f = bright, o = outline, d = dim
 const PIXELS = ["d", "o", "f", "o", "d", "o", "f", "o", "d"];
@@ -26,8 +34,45 @@ export default function HeroBackdrop({ pose }) {
   return (
     <div className="hero-fx" data-pose={pose} aria-hidden="true">
       <div className="hero-fx__stage">
-        {/* soft light haze behind the ring */}
-        <span className="fx-haze" />
+        {/* crest — painted first, so the JHV lettering sits on top of it */}
+        <div className="fx-crest">
+          <Image
+            src={CREST.src}
+            alt=""
+            width={CREST.width}
+            height={CREST.height}
+            loading="eager"
+            decoding="async"
+            unoptimized
+            draggable={false}
+            className="fx-crest__img select-none"
+          />
+        </div>
+
+        {/* soft dark scrim in the shape of the letters: dims the crest right behind the lettering */}
+        <svg
+          className="fx-letters fx-letters--scrim"
+          viewBox={`0 0 ${JHV_WIDTH} ${JHV_HEIGHT}`}
+          focusable="false"
+        >
+          <defs>
+            <filter id="fx-scrim-blur" x="-10%" y="-30%" width="120%" height="160%">
+              <feGaussianBlur stdDeviation="24" />
+            </filter>
+          </defs>
+          <g
+            className="fx-scrim__body"
+            filter="url(#fx-scrim-blur)"
+            fill="#0a0a0a"
+            stroke="#0a0a0a"
+            strokeWidth="30"
+            strokeLinejoin="round"
+          >
+            {JHV_PATHS.map((d, i) => (
+              <path key={i} d={d} />
+            ))}
+          </g>
+        </svg>
 
         {/* JHV monogram */}
         <svg
@@ -63,6 +108,13 @@ export default function HeroBackdrop({ pose }) {
             </linearGradient>
           </defs>
 
+          {/* thin dark halo: keeps the letter edges crisp where the crest shows through */}
+          <g fill="none" stroke="#0a0a0a" strokeOpacity=".5" strokeWidth="14" strokeLinejoin="round">
+            {JHV_PATHS.map((d, i) => (
+              <path key={i} d={d} />
+            ))}
+          </g>
+
           <g fill="url(#fx-letter-fill)">
             {JHV_PATHS.map((d, i) => (
               <path key={i} d={d} />
@@ -91,66 +143,6 @@ export default function HeroBackdrop({ pose }) {
                 />
               );
             })}
-          </g>
-        </svg>
-
-        {/* ring + flare */}
-        <svg className="fx-ring" viewBox="0 0 1100 1100" focusable="false">
-          <defs>
-            <linearGradient
-              id="fx-ring-stroke"
-              gradientUnits="userSpaceOnUse"
-              x1="120"
-              y1="80"
-              x2="980"
-              y2="1020"
-            >
-              <stop offset="0" stopColor="#f1eee7" stopOpacity=".95" />
-              <stop offset=".3" stopColor="#c4c1ba" stopOpacity=".5" />
-              <stop offset=".62" stopColor="#8d8b86" stopOpacity=".26" />
-              <stop offset="1" stopColor="#f1eee7" stopOpacity=".9" />
-            </linearGradient>
-            <filter id="fx-ring-blur" x="-8%" y="-8%" width="116%" height="116%">
-              <feGaussianBlur stdDeviation="8" />
-            </filter>
-            <radialGradient id="fx-flare-core">
-              <stop offset="0" stopColor="#fbf9f4" stopOpacity=".95" />
-              <stop offset=".25" stopColor="#e6e3dc" stopOpacity=".45" />
-              <stop offset="1" stopColor="#e6e3dc" stopOpacity="0" />
-            </radialGradient>
-            <linearGradient id="fx-flare-line" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stopColor="#f1eee7" stopOpacity="0" />
-              <stop offset=".5" stopColor="#fbf9f4" stopOpacity=".95" />
-              <stop offset="1" stopColor="#f1eee7" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-
-          {/* glow */}
-          <circle
-            cx="550"
-            cy="550"
-            r="548"
-            fill="none"
-            stroke="url(#fx-ring-stroke)"
-            strokeWidth="10"
-            opacity=".5"
-            filter="url(#fx-ring-blur)"
-          />
-          {/* crisp hairline */}
-          <circle
-            cx="550"
-            cy="550"
-            r="548"
-            fill="none"
-            stroke="url(#fx-ring-stroke)"
-            strokeWidth="1.5"
-            vectorEffect="non-scaling-stroke"
-          />
-
-          {/* flare near the top of the ring */}
-          <g className="fx-flare" transform="translate(436 14)">
-            <circle r="58" fill="url(#fx-flare-core)" />
-            <rect x="-150" y="-1.6" width="300" height="3.2" fill="url(#fx-flare-line)" />
           </g>
         </svg>
 
