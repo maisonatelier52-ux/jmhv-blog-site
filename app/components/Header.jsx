@@ -11,12 +11,16 @@ export default function Header() {
 
   return (
     <header className="absolute left-0 top-0 z-50 flex w-full items-start justify-between gap-4 px-5 pt-5 md:px-8 md:pt-7">
-      <Link
-        href="/"
-        className="display-font -m-2 p-2 text-left text-[11px] leading-[.9] tracking-[-.03em] whitespace-nowrap min-[360px]:text-[12px] md:text-[14px]"
-      >
-        JULIO HERRERA VELUTINI
-      </Link>
+      <div className="relative">
+        <Link
+          href="/"
+          className="display-font -m-2 block p-2 text-left text-[11px] leading-[.9] tracking-[-.03em] whitespace-nowrap min-[360px]:text-[12px] md:text-[14px]"
+        >
+          JULIO HERRERA VELUTINI
+        </Link>
+        {/* Small accent bar under the name — homepage only, draws in / out with the page change */}
+        <span className="header-accent" data-home={isHome ? "" : undefined} aria-hidden="true" />
+      </div>
 
       {isHome ? (
         <Link

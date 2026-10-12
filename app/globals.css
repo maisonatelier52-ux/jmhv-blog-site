@@ -127,6 +127,113 @@ button { font: inherit; }
 }
 .stage-vignette[data-pose="side"] { opacity: 0; }
 
+/* ---------- Homepage backdrop (JHV lettering · ring · light streaks · pixel accent) ----------
+   Drawn by <HeroBackdrop /> behind the portrait, homepage only, and faded out when the stage moves
+   to a content page. It is placed from --home-person-w (the portrait's homepage width) and --hero-h,
+   so it follows the portrait at every screen size. The knobs below are the ones to tweak.
+   (No z-index here on purpose: it comes before the pixel canvas in the DOM, so the animated dots
+   keep drifting over it.) */
+:root {
+  --fx-letters-w: min(calc(var(--home-person-w) * 1.24), 94vw); /* width of the JHV monogram */
+  --fx-letters-y: calc(var(--home-person-w) * .408);            /* its centre, measured up from the banner */
+  --fx-ring-w: min(calc(var(--home-person-w) * .74), 96vw);     /* ring diameter */
+  --fx-ring-y: calc(var(--home-person-w) * .4155);              /* ring centre, measured up from the banner */
+  --fx-light: 241, 238, 231;                                    /* rgb of the light accents (neutral stone) */
+}
+
+.hero-fx {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+  will-change: opacity;
+  transition: opacity .9s ease .25s;
+}
+.hero-fx[data-pose="side"] { opacity: 0; transition: opacity .45s ease; }
+.hero-fx__stage { position: absolute; left: 0; top: 0; width: 100%; height: var(--hero-h); }
+
+.fx-haze {
+  position: absolute; left: 50%; top: calc(100% - var(--fx-ring-y));
+  width: calc(var(--fx-ring-w) * 1.6); aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(var(--fx-light), .07), rgba(var(--fx-light), .02) 55%, transparent);
+}
+
+.fx-letters,
+.fx-ring {
+  position: absolute; left: 50%;
+  height: auto; overflow: visible;
+  transform: translate(-50%, -50%);
+}
+.fx-letters {
+  top: calc(100% - var(--fx-letters-y));
+  width: var(--fx-letters-w);
+  aspect-ratio: 2040.5 / 780.5;
+  animation: fx-rise 1.7s cubic-bezier(.16, 1, .3, 1) .12s backwards;
+}
+.fx-ring {
+  top: calc(100% - var(--fx-ring-y));
+  width: var(--fx-ring-w);
+  aspect-ratio: 1;
+  animation: fx-rise 1.9s cubic-bezier(.16, 1, .3, 1) .3s backwards;
+}
+@keyframes fx-rise {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 2.5%)) scale(.985); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* pixel-square accent: a slow, quiet twinkle on the bright squares */
+.fx-pixel--f { fill: rgba(var(--fx-light), .85); animation: fx-twinkle 5.5s ease-in-out infinite; animation-delay: calc(var(--n) * -.7s); }
+.fx-pixel--d { fill: rgba(var(--fx-light), .16); }
+.fx-pixel--o { fill: none; stroke: rgba(var(--fx-light), .5); stroke-width: 1.2px; vector-effect: non-scaling-stroke; }
+@keyframes fx-twinkle {
+  0%, 100% { opacity: .95; }
+  50%      { opacity: .35; }
+}
+
+.fx-flare { animation: fx-pulse 6s ease-in-out infinite; }
+@keyframes fx-pulse {
+  0%, 100% { opacity: .65; }
+  50%      { opacity: 1; }
+}
+
+/* light streaks: hairline with a bright centre and a soft glow */
+.fx-streak {
+  position: absolute; height: 1.5px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(var(--fx-light), .16) 22%,
+    rgba(var(--fx-light), .9) 50%,
+    rgba(var(--fx-light), .16) 78%,
+    transparent);
+  animation: fx-fade 1.6s ease .7s backwards;
+}
+.fx-streak::before,
+.fx-streak::after { content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.fx-streak::before { /* soft glow around the bright centre */
+  width: 46%; height: 26px;
+  background: radial-gradient(closest-side, rgba(var(--fx-light), .3), transparent);
+  animation: fx-pulse 7s ease-in-out infinite;
+}
+.fx-streak::after { /* hot spot */
+  width: 9px; height: 9px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 252, .95), rgba(var(--fx-light), 0));
+}
+.fx-streak--right { left: 74.6%; width: 17.4%; top: 30.5%; }
+.fx-streak--left  { left: 0;     width: 18%;   top: 90%; }
+.fx-streak--low   { left: 64.9%; width: 10.2%; top: 93.4%; }
+@keyframes fx-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Phones: the portrait fills most of the width, so lift the monogram up beside the head and
+   keep the streaks in the empty space above him */
+@media (max-width: 767px) {
+  :root {
+    --fx-letters-y: calc(var(--home-person-w) * .66);
+    --fx-ring-y: calc(var(--home-person-w) * .5);
+  }
+  .fx-streak--left { top: 28%; width: 26%; }
+  .fx-streak--low { display: none; }
+}
+
 /* ---------- Name banner (slides down and away on content pages) ---------- */
 .stage-banner {
   position: fixed; z-index: 20; left: 0; right: 0;
@@ -175,6 +282,18 @@ button { font: inherit; }
     display: inline;
   }
 }
+
+/* ---------- Header accent bar (homepage only) ---------- */
+.header-accent {
+  position: absolute; left: 0; top: calc(100% + 7px);
+  width: 30px; height: 3px;
+  background: linear-gradient(90deg, rgba(var(--fx-light), .95), rgba(var(--fx-light), .35));
+  transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform .45s ease;
+  pointer-events: none;
+}
+.header-accent[data-home] { transform: scaleX(1); transition: transform .9s var(--move-ease) .35s; }
+@media (min-width: 768px) { .header-accent { width: 40px; top: calc(100% + 9px); } }
 
 /* ---------- View button (homepage) ---------- */
 .view-btn {
