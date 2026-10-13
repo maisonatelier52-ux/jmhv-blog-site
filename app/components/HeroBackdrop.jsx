@@ -21,7 +21,7 @@ import { JHV_HEIGHT, JHV_PATHS, JHV_WIDTH } from "./hero-glyphs";
  */
 
 // public/crest.webp — its pixel size
-const CREST = { src: "/crest.webp", width: 373, height: 551 };
+const CREST = { src: "/crest.webp", width: 333, height: 427 };
 
 // 3×3 pixel-square accent: f = bright, o = outline, d = dim
 const PIXELS = ["d", "o", "f", "o", "d", "o", "f", "o", "d"];

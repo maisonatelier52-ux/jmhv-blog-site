@@ -14,7 +14,7 @@ export default function Header() {
       <div className="relative">
         <Link
           href="/"
-          className="display-font -m-2 block p-2 text-left text-[11px] leading-[.9] tracking-[-.03em] whitespace-nowrap min-[360px]:text-[12px] md:text-[14px]"
+          className="name-font -m-2 block p-2 text-left text-[11px] leading-[.9] tracking-[.02em] whitespace-nowrap min-[360px]:text-[12px] md:text-[14px]"
         >
           JULIO HERRERA VELUTINI
         </Link>

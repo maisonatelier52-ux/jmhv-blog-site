@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Bodoni Moda Bold — the same typeface (and optical size) as the big JHV letters behind the portrait.
+   A 13 KB subset sits next to this file in app/fonts/ (SIL Open Font License, see OFL.txt there). It is
+   declared here, not in layout.jsx, so the name always picks it up and nothing is fetched from Google. */
+@font-face {
+  font-family: "JHV Bodoni";
+  src: url("./fonts/BodoniModa-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --ink: #0a0a0a;
   /* Soft stone tone matching the mono portrait highlights — not pure white */
@@ -8,11 +19,14 @@
   --pad: 20px;
   --vh-full: 100vh;
   --banner-lines: 2;
-  /* Mobile: open tracking so all-caps stay legible and professional */
-  --banner-ls: -.018em;
+  /* The name is set in Bodoni Moda Bold (same as the JHV letters). The divisors below are measured
+     from the font: the full name is ~14.1em wide on one line, its longest mobile line ~8.6em, so
+     the text fills about 95% of the width. A bigger divisor = smaller name. */
+  --name-font: "JHV Bodoni", "Bodoni 72", Didot, "Bodoni MT", "Times New Roman", serif;
+  --banner-ls: -.005em;
   --banner-lh: .94;
   --banner-pad-y: 36px;
-  --banner-fs: clamp(26px, calc((100vw - 2 * var(--pad)) / 7.4), 48px);
+  --banner-fs: clamp(22px, calc((100vw - 2 * var(--pad)) / 9), 54px);
   --banner-h: calc(var(--banner-fs) * var(--banner-lh) * var(--banner-lines) + var(--banner-pad-y));
   --hero-h: max(260px, calc(var(--vh-full) - var(--banner-h)));
 }
@@ -21,9 +35,9 @@
   :root {
     --banner-lines: 1;
     --banner-lh: .8;
-    /* Desktop: condensed but with readable gaps between words */
-    --banner-ls: -.025em;
-    --banner-fs: clamp(44px, calc((100vw - 2 * var(--pad)) / 10), 320px);
+    /* Desktop: the whole name on one line, filling the width */
+    --banner-ls: -.005em;
+    --banner-fs: clamp(30px, calc((100vw - 2 * var(--pad)) / 14.8), 216px);
   }
 }
 @media (min-width: 768px) { :root { --pad: 32px; } }
@@ -39,6 +53,8 @@ button { font: inherit; }
 
 .display-font { font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif-condensed, "Roboto Condensed", sans-serif; letter-spacing: -.045em; }
 .body-font { font-family: Arial, Helvetica, sans-serif; letter-spacing: -.025em; }
+/* The name wordmark (banner + header) — same typeface as the JHV letters behind the portrait */
+.name-font { font-family: var(--name-font); font-weight: 700; }
 
 .pixel-map { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; display: block; opacity: .95; pointer-events: none; }
 
@@ -137,8 +153,8 @@ button { font: inherit; }
   --fx-letters-scale: .7;   /* JHV size: 1 = the original size, .7 = 30% smaller, .5 = half */
   --fx-letters-w: calc(min(calc(var(--home-person-w) * 1.24), 94vw) * var(--fx-letters-scale)); /* width of the JHV monogram */
   --fx-letters-y: calc(var(--home-person-w) * .408);            /* its centre, measured up from the banner */
-  --fx-crest-w: min(calc(var(--home-person-w) * .6), 92vw);     /* width of the crest image */
-  --fx-crest-y: calc(var(--home-person-w) * .4);                /* crest centre, measured up from the banner */
+  --fx-crest-w: min(calc(var(--home-person-w) * .65), 92vw);    /* width of the crest image */
+  --fx-crest-y: calc(var(--home-person-w) * .44);               /* crest centre, measured up from the banner — higher = further up */
   --fx-crest-opacity: .5;  /* how solid the crest is — lower = more see-through, JHV stays clearer */
   --fx-scrim: .85;         /* strength of the soft dark scrim behind the letters (0 = off) */
   --fx-light: 241, 238, 231;                                    /* rgb of the light accents (neutral stone) */
@@ -174,7 +190,7 @@ button { font: inherit; }
 .fx-crest {
   top: calc(100% - var(--fx-crest-y));
   width: var(--fx-crest-w);
-  aspect-ratio: 373 / 551;
+  aspect-ratio: 333 / 427;
   animation: fx-rise 1.9s cubic-bezier(.16, 1, .3, 1) .3s backwards;
 }
 .fx-crest__img { display: block; width: 100%; height: auto; max-width: none; opacity: var(--fx-crest-opacity); }
@@ -262,7 +278,7 @@ button { font: inherit; }
   overflow: hidden;
   text-align: right;
   text-transform: uppercase;
-  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", "Roboto Condensed", "Arial Narrow", sans-serif-condensed, sans-serif;
+  font-family: var(--name-font);
   font-size: var(--banner-fs);
   font-weight: 700;
   line-height: var(--banner-lh);
@@ -280,8 +296,7 @@ button { font: inherit; }
 @media (min-width: 560px) {
   .banner-name {
     white-space: nowrap;
-    /* Strong word gaps so HERRERA / VELUTINI never collide */
-    word-spacing: 0.22em;
+    word-spacing: 0.12em;
   }
   .banner-name > span {
     display: inline;
