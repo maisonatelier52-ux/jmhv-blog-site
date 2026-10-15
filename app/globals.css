@@ -128,10 +128,37 @@ button { font: inherit; }
   filter: grayscale(1) contrast(1.12) brightness(.78);
 }
 /* Intro (first load only — the element never remounts afterwards) */
-.stage-person-img[data-ready] { animation: person-in 1.2s cubic-bezier(.16,1,.3,1) backwards; }
+.stage-person-img[data-ready],
+.stage-person-coat[data-ready] { animation: person-in 1.2s cubic-bezier(.16,1,.3,1) backwards; }
 @keyframes person-in {
   from { opacity: 0; transform: translateY(8%) scale(.985); }
   to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Mobile homepage: portrait lifted, jacket extended ----------
+   On phones the portrait sits higher on the homepage (--home-lift: 6.2% of its width, so it scales
+   with the portrait on every phone). That leaves a gap above the name banner, which the coat strip
+   (public/person-coat.png, drawn inside .stage-person so it travels with the portrait) fills.
+   Change --home-lift to raise / lower the portrait; the strip has ~12% of the width to spare.
+   Desktop and the content-page pose are untouched. */
+.stage-person-coat { display: none; }
+@media (max-width: 767px) {
+  :root { --home-lift: calc(var(--home-person-w) * .062); }
+  .pose-anchor--home { top: calc(var(--hero-h) - var(--home-lift)); }
+
+  /* same box as the portrait image, so the intro animation moves both identically */
+  .stage-person-coat {
+    display: block; position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    transform-origin: 50% 100%;
+    transition: opacity .25s ease;
+  }
+  .stage-person[data-pose="side"] .stage-person-coat { opacity: 0; } /* homepage only */
+  .stage-person-coat__img {
+    position: absolute; left: 0; width: 100%; height: auto; max-width: none;
+    top: calc(100% - .756%); /* overlaps the portrait's last 8 source rows, so there is no seam */
+    filter: grayscale(1) contrast(1.12) brightness(.78); /* identical to .stage-person-img */
+  }
 }
 
 /* Vignette: homepage only, dissolves as the portrait moves away */
@@ -143,21 +170,14 @@ button { font: inherit; }
 }
 .stage-vignette[data-pose="side"] { opacity: 0; }
 
-/* ---------- Homepage backdrop (crest · JHV lettering · light streaks · pixel accent) ----------
+/* ---------- Homepage backdrop (light streaks) ----------
    Drawn by <HeroBackdrop /> behind the portrait, homepage only, and faded out when the stage moves
    to a content page. It is placed from --home-person-w (the portrait's homepage width) and --hero-h,
    so it follows the portrait at every screen size. The knobs below are the ones to tweak.
    (No z-index here on purpose: it comes before the pixel canvas in the DOM, so the animated dots
    keep drifting over it.) */
 :root {
-  --fx-letters-scale: .7;   /* JHV size: 1 = the original size, .7 = 30% smaller, .5 = half */
-  --fx-letters-w: calc(min(calc(var(--home-person-w) * 1.24), 94vw) * var(--fx-letters-scale)); /* width of the JHV monogram */
-  --fx-letters-y: calc(var(--home-person-w) * .408);            /* its centre, measured up from the banner */
-  --fx-crest-w: min(calc(var(--home-person-w) * .65), 92vw);    /* width of the crest image */
-  --fx-crest-y: calc(var(--home-person-w) * .44);               /* crest centre, measured up from the banner — higher = further up */
-  --fx-crest-opacity: .5;  /* how solid the crest is — lower = more see-through, JHV stays clearer */
-  --fx-scrim: .85;         /* strength of the soft dark scrim behind the letters (0 = off) */
-  --fx-light: 241, 238, 231;                                    /* rgb of the light accents (neutral stone) */
+  --fx-light: 241, 238, 231;  /* rgb of the light accents (neutral stone) */
 }
 
 .hero-fx {
@@ -169,45 +189,6 @@ button { font: inherit; }
 }
 .hero-fx[data-pose="side"] { opacity: 0; transition: opacity .45s ease; }
 .hero-fx__stage { position: absolute; left: 0; top: 0; width: 100%; height: var(--hero-h); }
-
-.fx-letters,
-.fx-crest {
-  position: absolute; left: 50%;
-  height: auto; overflow: visible;
-  transform: translate(-50%, -50%);
-}
-.fx-letters {
-  top: calc(100% - var(--fx-letters-y));
-  width: var(--fx-letters-w);
-  aspect-ratio: 2040.5 / 780.5;
-  animation: fx-rise 1.7s cubic-bezier(.16, 1, .3, 1) .12s backwards;
-}
-
-/* The crest. It sits BEHIND the JHV lettering (it comes first in the DOM) and is only partly
-   opaque, so the letters always read clearly on top of it. The scrim is a blurred, letter-shaped
-   dark patch between the two that dims the crest right behind the lettering. (Opacity lives on the
-   inner elements, not on the animated wrappers, so the fade-in never "pops" at the end.) */
-.fx-crest {
-  top: calc(100% - var(--fx-crest-y));
-  width: var(--fx-crest-w);
-  aspect-ratio: 333 / 427;
-  animation: fx-rise 1.9s cubic-bezier(.16, 1, .3, 1) .3s backwards;
-}
-.fx-crest__img { display: block; width: 100%; height: auto; max-width: none; opacity: var(--fx-crest-opacity); }
-.fx-scrim__body { opacity: var(--fx-scrim); }
-@keyframes fx-rise {
-  from { opacity: 0; transform: translate(-50%, calc(-50% + 2.5%)) scale(.985); }
-  to   { opacity: 1; transform: translate(-50%, -50%); }
-}
-
-/* pixel-square accent: a slow, quiet twinkle on the bright squares */
-.fx-pixel--f { fill: rgba(var(--fx-light), .85); animation: fx-twinkle 5.5s ease-in-out infinite; animation-delay: calc(var(--n) * -.7s); }
-.fx-pixel--d { fill: rgba(var(--fx-light), .16); }
-.fx-pixel--o { fill: none; stroke: rgba(var(--fx-light), .5); stroke-width: 1.2px; vector-effect: non-scaling-stroke; }
-@keyframes fx-twinkle {
-  0%, 100% { opacity: .95; }
-  50%      { opacity: .35; }
-}
 
 .fx-flare { animation: fx-pulse 6s ease-in-out infinite; }
 @keyframes fx-pulse {
@@ -242,15 +223,8 @@ button { font: inherit; }
 .fx-streak--low   { left: 64.9%; width: 10.2%; top: 93.4%; }
 @keyframes fx-fade { from { opacity: 0; } to { opacity: 1; } }
 
-/* Phones: the portrait fills most of the width, so lift the monogram up beside the head and
-   keep the streaks in the empty space above him */
+/* Phones: keep the streaks in the empty space above him */
 @media (max-width: 767px) {
-  :root {
-    --fx-letters-y: calc(var(--home-person-w) * .66);
-    --fx-letters-scale: 1; /* phones keep the full size: the head already covers much of the lettering */
-    --fx-crest-y: calc(var(--home-person-w) * .5);
-    --fx-crest-opacity: .42; /* a touch fainter on phones, where the crest sits closer to the letters */
-  }
   .fx-streak--left { top: 28%; width: 26%; }
   .fx-streak--low { display: none; }
 }

@@ -94,7 +94,7 @@ export default function Stage() {
 
   return (
     <>
-      {/* Homepage-only JHV lettering + ring + light streaks. Rendered BEFORE the pixel canvas,
+      {/* Homepage-only light streaks. Rendered BEFORE the pixel canvas,
           so the animated dots keep drifting over it. */}
       <HeroBackdrop pose={pose} />
       <PixelMap />
@@ -125,6 +125,22 @@ export default function Stage() {
           onLoad={() => setLoaded(true)}
           onError={() => setLoaded(true)}
         />
+
+        {/* Mobile homepage only (hidden by CSS everywhere else): the portrait is lifted a little there,
+            so this strip carries the jacket on down to the name banner. It is matched to the bottom
+            edge of public/person.png — if you swap the portrait, this strip must be remade too. */}
+        <div className="stage-person-coat" data-ready={ready ? "" : undefined} aria-hidden="true">
+          <Image
+            src="/person-coat.png"
+            alt=""
+            width={1487}
+            height={138}
+            sizes="140vw"
+            loading="eager"
+            className="stage-person-coat__img select-none"
+            draggable={false}
+          />
+        </div>
       </div>
 
       {/* Name banner — slides down and away when moving to a content page */}
