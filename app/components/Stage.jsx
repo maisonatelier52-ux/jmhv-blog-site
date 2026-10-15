@@ -4,7 +4,6 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import PixelMap from "./PixelMap";
-import HeroBackdrop from "./HeroBackdrop";
 
 /**
  * Persistent stage — lives in app/layout.jsx, so it is NOT remounted when you
@@ -94,9 +93,6 @@ export default function Stage() {
 
   return (
     <>
-      {/* Homepage-only light streaks. Rendered BEFORE the pixel canvas,
-          so the animated dots keep drifting over it. */}
-      <HeroBackdrop pose={pose} />
       <PixelMap />
 
       {/* Soft vignette behind the portrait — homepage only, fades out on content pages */}

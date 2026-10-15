@@ -170,63 +170,8 @@ button { font: inherit; }
 }
 .stage-vignette[data-pose="side"] { opacity: 0; }
 
-/* ---------- Homepage backdrop (light streaks) ----------
-   Drawn by <HeroBackdrop /> behind the portrait, homepage only, and faded out when the stage moves
-   to a content page. It is placed from --home-person-w (the portrait's homepage width) and --hero-h,
-   so it follows the portrait at every screen size. The knobs below are the ones to tweak.
-   (No z-index here on purpose: it comes before the pixel canvas in the DOM, so the animated dots
-   keep drifting over it.) */
 :root {
   --fx-light: 241, 238, 231;  /* rgb of the light accents (neutral stone) */
-}
-
-.hero-fx {
-  position: fixed; inset: 0; z-index: 0;
-  pointer-events: none;
-  opacity: 1;
-  will-change: opacity;
-  transition: opacity .9s ease .25s;
-}
-.hero-fx[data-pose="side"] { opacity: 0; transition: opacity .45s ease; }
-.hero-fx__stage { position: absolute; left: 0; top: 0; width: 100%; height: var(--hero-h); }
-
-.fx-flare { animation: fx-pulse 6s ease-in-out infinite; }
-@keyframes fx-pulse {
-  0%, 100% { opacity: .65; }
-  50%      { opacity: 1; }
-}
-
-/* light streaks: hairline with a bright centre and a soft glow */
-.fx-streak {
-  position: absolute; height: 1.5px;
-  background: linear-gradient(90deg,
-    transparent,
-    rgba(var(--fx-light), .16) 22%,
-    rgba(var(--fx-light), .9) 50%,
-    rgba(var(--fx-light), .16) 78%,
-    transparent);
-  animation: fx-fade 1.6s ease .7s backwards;
-}
-.fx-streak::before,
-.fx-streak::after { content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-.fx-streak::before { /* soft glow around the bright centre */
-  width: 46%; height: 26px;
-  background: radial-gradient(closest-side, rgba(var(--fx-light), .3), transparent);
-  animation: fx-pulse 7s ease-in-out infinite;
-}
-.fx-streak::after { /* hot spot */
-  width: 9px; height: 9px; border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 255, 252, .95), rgba(var(--fx-light), 0));
-}
-.fx-streak--right { left: 74.6%; width: 17.4%; top: 30.5%; }
-.fx-streak--left  { left: 0;     width: 18%;   top: 90%; }
-.fx-streak--low   { left: 64.9%; width: 10.2%; top: 93.4%; }
-@keyframes fx-fade { from { opacity: 0; } to { opacity: 1; } }
-
-/* Phones: keep the streaks in the empty space above him */
-@media (max-width: 767px) {
-  .fx-streak--left { top: 28%; width: 26%; }
-  .fx-streak--low { display: none; }
 }
 
 /* ---------- Name banner (slides down and away on content pages) ---------- */
