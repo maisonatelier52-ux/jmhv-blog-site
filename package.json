@@ -9,14 +9,14 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",
-    "eslint": "^10.0.0",
-    "eslint-config-next": "latest",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.3",
     "tailwindcss": "latest"
   }
 }

@@ -97,17 +97,17 @@ export default function ContentLayer() {
   );
 
   return (
-    <div className="content-page relative z-10 flex h-full w-full flex-col md:flex-row">
+    <div className="content-page relative z-10 flex h-full w-full flex-col wide:flex-row">
       {/* Left / top: editorial content — pushed up on mobile so it clears the cutout */}
       <div
         key={shown}
         style={{ "--flow-step": `${flowStepMs}ms` }}
-        className={`content-panel relative z-20 flex min-h-0 flex-1 flex-col justify-start px-5 pt-[4.5rem] pb-[50vh] md:max-w-[58%] md:justify-center md:px-8 md:pb-16 md:pt-24 lg:max-w-[55%] ${
+        className={`content-panel relative z-20 flex min-h-0 flex-1 flex-col justify-start px-5 pt-[4.5rem] pb-[calc(var(--person-h)+var(--person-lift)+10px)] wide:max-w-[58%] wide:justify-center wide:px-8 wide:pb-16 wide:pt-24 lg:max-w-[55%] ${
           leaving ? "content-fade-out" : ""
         } ${delayed ? "content-enter-delay" : ""}`}
       >
         <p
-          className="flow-item mb-3 text-[10px] uppercase tracking-[.18em] text-white/50 md:mb-6 md:text-[12px]"
+          className="content-label flow-item mb-3 text-[10px] uppercase tracking-[.18em] text-white/50 wide:mb-6 wide:text-[12px]"
           style={{ "--i": 0 }}
         >
           {page.number} — {page.label}
@@ -115,19 +115,19 @@ export default function ContentLayer() {
         <h1 className="display-font content-headline text-balance break-words uppercase text-white/80">
           <FlowWords words={headlineWords} start={headlineStart} />
         </h1>
-        <p className="content-body mt-4 max-w-xl text-[13px] leading-[1.4] text-white/55 md:mt-8 md:text-[15px] md:leading-[1.5]">
+        <p className="content-body mt-4 max-w-xl text-[13px] leading-[1.4] text-white/55 wide:mt-8 wide:text-[15px] wide:leading-[1.5]">
           <FlowWords words={bodyWords} start={bodyStart} />
         </p>
 
         {/* Prev / Next */}
         <div
-          className="flow-item mt-8 flex flex-wrap items-center gap-4 md:mt-14 md:gap-6"
+          className="content-nav flow-item mt-8 flex flex-wrap items-center gap-4 wide:mt-14 wide:gap-6"
           style={{ "--i": navIndex }}
         >
           {prevPage ? (
             <Link
               href={`/${prevPage.slug}`}
-              className="group flex items-center gap-2 text-[11px] uppercase tracking-[.12em] text-white/50 transition hover:text-white/90 md:text-[12px]"
+              className="group flex items-center gap-2 text-[11px] uppercase tracking-[.12em] text-white/50 transition hover:text-white/90 wide:text-[12px]"
             >
               <span aria-hidden className="transition group-hover:-translate-x-1">
                 ←
@@ -136,14 +136,12 @@ export default function ContentLayer() {
                 {prevPage.number} {prevPage.title}
               </span>
             </Link>
-          ) : (
-            <span className="text-[11px] uppercase tracking-[.12em] text-white/20 md:text-[12px]">← Start</span>
-          )}
-          <span className="text-white/20">/</span>
+          ) : null}
+          {prevPage && nextPage ? <span className="text-white/20">/</span> : null}
           {nextPage ? (
             <Link
               href={`/${nextPage.slug}`}
-              className="group flex items-center gap-2 text-[11px] uppercase tracking-[.12em] text-white/50 transition hover:text-white/90 md:text-[12px]"
+              className="group flex items-center gap-2 text-[11px] uppercase tracking-[.12em] text-white/50 transition hover:text-white/90 wide:text-[12px]"
             >
               <span>
                 {nextPage.number} {nextPage.title}
@@ -152,9 +150,7 @@ export default function ContentLayer() {
                 →
               </span>
             </Link>
-          ) : (
-            <span className="text-[11px] uppercase tracking-[.12em] text-white/20 md:text-[12px]">End →</span>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
