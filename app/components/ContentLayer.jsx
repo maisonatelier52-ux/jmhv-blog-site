@@ -120,7 +120,8 @@ export default function ContentLayer() {
         </p>
 
         {/* Prev / Next */}
-        <div
+        <nav
+          aria-label="Previous and next page"
           className="content-nav flow-item mt-8 flex flex-wrap items-center gap-4 wide:mt-14 wide:gap-6"
           style={{ "--i": navIndex }}
         >
@@ -151,7 +152,7 @@ export default function ContentLayer() {
               </span>
             </Link>
           ) : null}
-        </div>
+        </nav>
       </div>
     </div>
   );
